@@ -1,33 +1,31 @@
 package carsharing;
 
 import java.sql.*;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
     static final String USER = "";
     static final String PASS = "";
-
     static Connection connection = null;
     static Statement stmt = null;
-    static String databaseFileName;
+    static String databaseFileName = "~/IdeaProjects/Car Sharing/Car Sharing/task/src/carsharing/db/carsharing";
 
     public static void main(String[] args) {
 
         if (args.length>0 && args[0].equals('-' + "databaseFileName"))
-            databaseFileName = "./src/carsharing/db/"+args[1];
-        else
-            databaseFileName = "./src/carsharing/db/mine";
-            databaseFileName = "/Users/kau/IdeaProjects/Car Sharing/Car Sharing/task/src/carsharing/db/carsharing";
+            databaseFileName = "~/IdeaProjects/Car Sharing/Car Sharing/task/src/carsharing/db/"+args[1];
+
         openConnection();
 
-        CompanyDaoImp allCompanies = new CompanyDaoImp(stmt);
-        CarDaoImp allCars = new CarDaoImp(stmt);
-        CustomerDaoImp allCustomers = new CustomerDaoImp(stmt);
+        CustomerDaoImp CUSTOMER = new CustomerDaoImp(stmt);
+        CompanyDaoImp COMPANY = new CompanyDaoImp(stmt);
+        CarDaoImp CAR = new CarDaoImp(stmt);
 
         Scanner scan = new Scanner(System.in);
 
-        int choice1, choice2, choice3, choice4, choice5;
+        int LogIn;
 
         do {
             System.out.println("1. Log in as a manager");
@@ -35,161 +33,164 @@ public class Main {
             System.out.println("3. Create a customer");
             System.out.println("0. Exit");
             System.out.print("> ");
-            choice1 = scan.nextInt();
-            System.out.println();
-            if (choice1 == 1){
+            LogIn = scan.nextInt();
+
+            if (LogIn == 1){ // 1. Log in as a manager
+                int managerCompanyOptions;
+
                 do {
-                    allCompanies.updateCompanies();
                     System.out.println("1. Company list");
                     System.out.println("2. Create a company");
                     System.out.println("0. Back");
                     System.out.print("> ");
-                    choice2 = scan.nextInt();
-                    System.out.println();
+                    managerCompanyOptions = scan.nextInt();
 
-                    if (choice2 == 1) {
-                        if (allCompanies.size()==0) {
+                    if (managerCompanyOptions == 1) {
+                        List<Company> companies = COMPANY.getAll();
+                        if (companies.size()==0) {
                             System.out.println("The company list is empty!");
                         } else {
                             System.out.println("Choose the company:");
-                            System.out.print(allCompanies);
+                            for (int i = 0; i < companies.size(); i++) {
+                                System.out.println((i+1) + ". " + companies.get(i));
+                            }
                             System.out.println("0. Back");
                             System.out.print("> ");
-                            choice3 = scan.nextInt();
-                            System.out.println();
+                            int selectedCompany = scan.nextInt();
 
-                            if (choice3>0 & choice3 <= allCompanies.size()) {
-                                Company company = allCompanies.get(choice3);
+                            if (selectedCompany>0 & selectedCompany<=companies.size()) {
+                                Company company = companies.get(selectedCompany-1);
                                 System.out.println("'" + company.getName() + "' company");
-
+                                int managerCarOptions;
                                 do {
-                                    allCars.updateCars(company);
                                     System.out.println("1. Car list");
                                     System.out.println("2. Create a car");
                                     System.out.println("0. Back");
                                     System.out.print("> ");
-                                    choice4 = scan.nextInt();
-                                    System.out.println();
+                                    managerCarOptions = scan.nextInt();
 
-                                    if (choice4 == 1) {
-                                        if (allCars.size() == 0) {
+                                    if (managerCarOptions == 1) { // 1. Car list
+                                        List<Car> cars = CAR.getAll(company);
+                                        if (cars.size() == 0) {
                                             System.out.println("The car list is empty!");
                                         } else {
                                             System.out.println("Car list:");
-                                            System.out.println(allCars);
+                                            for (int i = 0; i < cars.size(); i++) {
+                                                System.out.println((i + 1) + ". " + cars.get(i));
+                                            }
                                         }
-                                    } else if (choice4 == 2) {
+                                    } else if (managerCarOptions == 2) { // 2. Create a car
                                         scan.nextLine();
                                         System.out.println("Enter the car name:");
                                         System.out.print("> ");
-                                        allCars.addCar(scan.nextLine());
+                                        String name = scan.nextLine();
+                                        CAR.addCar(name, company);
                                     }
-                                } while (choice4 != 0);
+                                } while (managerCarOptions != 0); // 0. Back
                             }
                         }
-                    } else if (choice2 == 2) {
+                    } else if (managerCompanyOptions == 2) {
                         scan.nextLine();
                         System.out.println("Enter the company name:");
                         System.out.print("> ");
-                        allCompanies.addCompany(scan.nextLine());
+                        String name = scan.nextLine();
+                        COMPANY.addCompany(name);
                     }
-                } while (choice2 != 0);
-            } else if (choice1 == 2) {
-                allCustomers.updateCustomer();
-                System.out.println("Customer list:");
-                if (allCustomers.size()==0) {
+                } while (managerCompanyOptions != 0);
+
+            } else if (LogIn == 2) { // 2. Log in as a customer
+                List<Customer> customers = CUSTOMER.getAll();
+                if (customers.size()==0) {
                     System.out.println("The customer list is empty!");
                 } else {
-                    System.out.print(allCustomers);
+                    System.out.println("Customer list:");
+                    for (int i=0; i<customers.size(); i++) {
+                        System.out.println((i+1) + ". " + customers.get(i));
+                    }
                     System.out.println("0. Back");
                     System.out.print("> ");
-                    choice2 = scan.nextInt();
-                    System.out.println();
+                    int customerId = scan.nextInt();
 
-                    choice3 = 9;
-                    do {
-                        if (choice2 > 0 & choice2 <= allCustomers.size()) {
-                            allCompanies.updateCompanies();
-                            allCustomers.updateCustomer();
-                            allCars.updateCars();
-
-                            Customer customer = allCustomers.get(choice2);
+                    if (customerId>0 & customerId<=customers.size()) {
+                        int customerOptions;
+                        do {
+                            customers = CUSTOMER.getAll();
+                            Customer customer = customers.get(customerId - 1);
 
                             System.out.println("1. Rent a car");
                             System.out.println("2. Return a rented car");
                             System.out.println("3. My rented car");
                             System.out.println("0. Back");
                             System.out.print("> ");
-                            choice3 = scan.nextInt();
-                            System.out.println();
-                            int currentCarId = customer.getCarId();
+                            customerOptions = scan.nextInt();
 
-                            if (choice3 == 1) {
-                                if (currentCarId>0) {
+                            if (customerOptions == 1) { // 1. Rent a car
+                                if (customer.hasCar()) {
                                     System.out.println("You've already rented a car!");
-                                    System.out.println();
-                                }
-                                else {
+                                } else {
                                     System.out.println("Choose a company:");
-                                    System.out.print(allCompanies);
+                                    List<Company> companies = COMPANY.getAll();
+                                    if (companies.size() == 0) {
+                                        System.out.println("The company list is empty!");
+                                    } else {
+                                        for (int i = 0; i < companies.size(); i++) {
+                                            System.out.println((i + 1) + ". " + companies.get(i));
+                                        }
+                                    }
                                     System.out.println("0. Back");
                                     System.out.print("> ");
-                                    choice4 = scan.nextInt();
-                                    System.out.println();
+                                    int selectedCompany = scan.nextInt();
 
-                                    if (choice4 > 0 & choice4 <= allCompanies.size()) {
-                                        Company company = allCompanies.get(choice4);
-                                        allCars.updateCarsNonrented(company);
-                                        if (allCars.size() == 0) {
+                                    if (selectedCompany > 0 & selectedCompany <= companies.size()) {
+                                        Company company = companies.get(selectedCompany - 1);
+                                        List<Car> avalibleCars = CAR.getAvalible(company);
+                                        if (avalibleCars.size() == 0) {
                                             System.out.println("The car list is empty!");
                                         } else {
                                             System.out.println("Choose a car:");
-                                            System.out.print(allCars);
+                                            for (int i = 0; i < avalibleCars.size(); i++) {
+                                                System.out.println((i + 1) + ". " + avalibleCars.get(i));
+                                            }
                                             System.out.println("0. Back");
                                             System.out.print("> ");
-                                            choice5 = scan.nextInt();
-                                            System.out.println();
-
-                                            if (choice5>0 & choice5 <= allCars.size()) {
-                                                Car car = allCars.get(choice5);
-                                                allCustomers.rentCar(customer, car);
-                                                System.out.println();
+                                            int selectedCar = scan.nextInt();
+                                            if (selectedCar > 0 & selectedCar <= avalibleCars.size()) {
+                                                Car car = avalibleCars.get(selectedCar - 1);
+                                                CUSTOMER.rentCar(customer, car);
                                             }
+
                                         }
                                     }
                                 }
-                            } else if (choice3 == 2) {
-                                if (currentCarId > 0) {
-                                    allCustomers.returnCar(customer);
-                                    System.out.println();
+                            } else if (customerOptions == 2) { // 2. Return a rented car
+                                if (customer.hasCar()) {
+                                    CUSTOMER.returnCar(customer);
                                 } else {
                                     System.out.println("You didn't rent a car!");
-                                    System.out.println();
                                 }
-                            } else if (choice3 == 3) {
-                                if (currentCarId > 0) {
-                                    Car currentCar = allCars.get(currentCarId);
-                                    Company currentCompany = allCompanies.get(currentCarId);
+                            } else if (customerOptions == 3) { // 3. My rented car
+                                if (customer.hasCar()) {
+                                    Car car = CAR.get(customer);
+                                    Company company = COMPANY.get(car);
                                     System.out.println("Your rented car:");
-                                    System.out.println(currentCar);
+                                    System.out.println(car);
                                     System.out.println("Company:");
-                                    System.out.println(currentCompany);
-                                    System.out.println();
+                                    System.out.println(company);
                                 } else {
                                     System.out.println("You didn't rent a car!");
-                                    System.out.println();
                                 }
                             }
-                        }
-                    } while (choice3 != 0);
+                        } while (customerOptions != 0); // 0. Back
+                    }
                 }
-            } else if (choice1 == 3) {
+            } else if (LogIn == 3) { // 3. Create a customer
                 scan.nextLine();
                 System.out.println("Enter the customer name:");
                 System.out.print("> ");
-                allCustomers.addCustomer(scan.nextLine());
+                String name = scan.nextLine();
+                CUSTOMER.addCustomer(name);
             }
-        } while (choice1 != 0);
+        } while (LogIn != 0); // 0. Exit
 
         closeConnection();
     }

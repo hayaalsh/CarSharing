@@ -1002,9 +1002,6 @@ files:
         }
     }
   learner_created: true
-- name: src/carsharing/db/carsharing.trace.db
-  visible: true
-  learner_created: true
 - name: src/carsharing/CarDao.java
   visible: true
   text: |
@@ -1131,10 +1128,19 @@ files:
 - name: src/carsharing/Customer.java
   visible: true
   learner_created: true
+- name: src/carsharing/CustomerDao.java
+  visible: true
+  learner_created: true
+- name: src/carsharing/db/carsharing.trace.db
+  visible: true
+  learner_created: true
+- name: src/carsharing/db/carsharing.mv.db
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/140/stages/761/implement#comment
 status: Solved
 feedback:
   message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">JetBrains
     Academy</a> to continue learning.
-  time: Sat, 25 Dec 2021 12:49:26 UTC
+  time: Sat, 25 Dec 2021 16:57:12 UTC
 record: -1

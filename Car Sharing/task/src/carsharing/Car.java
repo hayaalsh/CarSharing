@@ -16,10 +16,6 @@ public class Car {
         return id;
     }
 
-    public String getName(){
-        return name;
-    }
-
     public int getCompanyId(){
         return companyId;
     }

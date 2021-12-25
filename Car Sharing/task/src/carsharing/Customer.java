@@ -22,6 +22,13 @@ public class Customer {
 
     public int getCarId() { return carId; }
 
+    public boolean hasCar() {
+        if (carId!=0)
+            return true;
+        else
+            return false;
+    }
+
     public String toString(){
         return name;
     }

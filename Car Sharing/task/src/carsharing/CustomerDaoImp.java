@@ -8,38 +8,32 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomerDaoImp { // implements CompanyDao {
+public class CustomerDaoImp implements CustomerDao {
 
-    List<Customer> customers;
     Statement stmt;
 
     public CustomerDaoImp(Statement stmt){
         this.stmt = stmt;
+        String sql = "CREATE TABLE CUSTOMER (" +
+                "ID INT PRIMARY KEY AUTO_INCREMENT, " +
+                "NAME VARCHAR UNIQUE NOT NULL," +
+                "RENTED_CAR_ID INT," +
+                "CONSTRAINT fk_car FOREIGN KEY (RENTED_CAR_ID) " +
+                "REFERENCES CAR(ID)" +
+                ")";
         try {
-            String sql = "CREATE TABLE CUSTOMER (" +
-                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
-                    "NAME VARCHAR UNIQUE NOT NULL," +
-                    "RENTED_CAR_ID INT," +
-                    "CONSTRAINT fk_car FOREIGN KEY (RENTED_CAR_ID) " +
-                    "REFERENCES CAR(ID)" +
-                    ")";
             stmt.executeUpdate(sql);
             System.out.println("Created CUSTOMER table.");
         } catch(JdbcSQLSyntaxErrorException se){
-            // System.out.println("Table CUSTOMER exists.");
+            System.out.println("Table CUSTOMER exists.");
         } catch(SQLException se) {
             se.printStackTrace();
         }
     }
 
-    public Customer get(int id){
-        Customer customer = customers.get(id-1);
-        return customer;
-    }
-
-    //@Override
-    public void updateCustomer() {
-        customers = new ArrayList<>();
+    @Override
+    public List<Customer> getAll() {
+        List<Customer> customers = new ArrayList<>();
         String sql = "SELECT * FROM CUSTOMER";
         try {
             ResultSet rs = stmt.executeQuery(sql);
@@ -53,8 +47,10 @@ public class CustomerDaoImp { // implements CompanyDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return customers;
     }
 
+    @Override
     public void rentCar(Customer customer, Car car){
         String sql = "UPDATE CUSTOMER " +
                 "SET RENTED_CAR_ID = " + car.getId() +
@@ -63,10 +59,11 @@ public class CustomerDaoImp { // implements CompanyDao {
             stmt.executeUpdate(sql);
             System.out.println("You rented '" + car + "'");
         } catch(SQLException se) {
-            //se.printStackTrace();
+            se.printStackTrace();
         }
     }
 
+    @Override
     public void returnCar(Customer customer) {
         String sql = "UPDATE CUSTOMER " +
                 "SET RENTED_CAR_ID = NULL " +
@@ -75,16 +72,11 @@ public class CustomerDaoImp { // implements CompanyDao {
             stmt.executeUpdate(sql);
             System.out.println("You've returned a rented car!");
         } catch(SQLException se) {
-            //se.printStackTrace();
+            se.printStackTrace();
         }
     }
 
-    //@Override
-    public int size() {
-        return customers.size();
-    }
-
-    //@Override
+    @Override
     public void addCustomer(String name) {
         String sql = "INSERT INTO CUSTOMER (NAME) VALUES ('" + name + "')";
         try {
@@ -98,11 +90,4 @@ public class CustomerDaoImp { // implements CompanyDao {
         System.out.println();
     }
 
-    public String toString() {
-        String outputString ="";
-        for (int i=0; i<customers.size(); i++) {
-            outputString = outputString + (i+1) + ". " + customers.get(i) + "\n";
-        }
-        return outputString;
-    }
 }

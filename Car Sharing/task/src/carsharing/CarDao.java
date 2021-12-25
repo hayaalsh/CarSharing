@@ -1,9 +1,9 @@
 package carsharing;
+import java.util.List;
 
 public interface CarDao {
-    void updateCars(Company company);
-    void addCar(String name);
-    int size();
-    Car get(int id);
-    void updateCars();
+    List<Car> getAll(Company company);
+    List<Car> getAvalible(Company company);
+    void addCar(String name, Company company);
+    Car get(Customer owner);
 }

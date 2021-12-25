@@ -1,9 +1,10 @@
 package carsharing;
 
+import java.util.List;
+
 public interface CompanyDao {
-    void updateCompanies();
+    List<Company> getAll();
     void addCompany(String name);
-    int size();
-    Company get(int id);
+    Company get(Car car);
 }
 

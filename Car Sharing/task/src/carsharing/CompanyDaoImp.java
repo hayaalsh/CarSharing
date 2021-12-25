@@ -10,47 +10,43 @@ import java.util.List;
 
 public class CompanyDaoImp implements CompanyDao {
 
-    List<Company> companies;
     Statement stmt;
 
     public CompanyDaoImp(Statement stmt){
         this.stmt = stmt;
+        String sql = "CREATE TABLE COMPANY (" +
+                "ID INT PRIMARY KEY AUTO_INCREMENT, " +
+                "NAME VARCHAR UNIQUE NOT NULL" +
+                ")";
         try {
-            String sql = "CREATE TABLE COMPANY (" +
-                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
-                    "NAME VARCHAR UNIQUE NOT NULL" +
-                    ")";
             stmt.executeUpdate(sql);
             System.out.println("Created COMPANY table.");
         } catch(JdbcSQLSyntaxErrorException se){
-            /*try {
-                sql = "ALTER TABLE COMPANY ALTER COLUMN ID INT AUTO_INCREMENT";
-                stmt.executeUpdate(sql);
-                sql = "ALTER TABLE COMPANY ADD PRIMARY KEY (ID)";
-                stmt.executeUpdate(sql);
-                System.out.println("Altered ID column to be PRIMARY KEY and AUTO_INCREMENT.");
-                sql = "ALTER TABLE COMPANY ADD UNIQUE (NAME)";
-                stmt.executeUpdate(sql);
-                sql = "ALTER TABLE COMPANY ALTER COLUMN NAME SET NOT NULL";
-                stmt.executeUpdate(sql);
-                System.out.println("Altered NAME column to be UNIQUE and NOT NULL.");
-            } catch (SQLException se2){
-            }*/
-            // System.out.println("Table COMPANY exists.");
+            System.out.println("Table COMPANY exists.");
         } catch(SQLException se) {
             se.printStackTrace();
         }
     }
 
     @Override
-    public Company get(int id){
-        Company company = companies.get(id-1);
+    public Company get(Car car) {
+        Company company = null;
+        String sql = "SELECT * FROM COMPANY WHERE ID = " + car.getCompanyId() + ";";
+        try {
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                String name = rs.getString("NAME");
+                company = new Company(car.getCompanyId(), name);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return company;
     }
 
     @Override
-    public void updateCompanies() {
-        companies = new ArrayList<>();
+    public List<Company> getAll() {
+        List<Company> companies = new ArrayList<>();
         String sql = "SELECT * FROM COMPANY";
         try {
             ResultSet rs = stmt.executeQuery(sql);
@@ -63,11 +59,7 @@ public class CompanyDaoImp implements CompanyDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public int size() {
-        return companies.size();
+        return companies;
     }
 
     @Override
@@ -82,13 +74,5 @@ public class CompanyDaoImp implements CompanyDao {
             e.printStackTrace();
         }
         System.out.println();
-    }
-
-    public String toString() {
-        String outputString ="";
-        for (int i = 0; i < companies.size(); i++) {
-            outputString = outputString + (i + 1) + ". " + companies.get(i) + "\n";
-        }
-        return outputString;
     }
 }
